@@ -1,33 +1,40 @@
-import React, { useState } from "react";
+import React from "react";
 
-export default function TodoItem({ todo, deleteTodo, toggleComplete, updateTodo }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(todo.text);
-
-  const handleSave = () => {
-    updateTodo(todo.id, editText);
-    setIsEditing(false);
-  };
-
+export default function TodoItem({ todo, deleteTodo, toggleComplete, handleEdit }) {
   return (
-    <li>
-      {isEditing ? (
-        <input value={editText} onChange={(e) => setEditText(e.target.value)} />
-      ) : (
-        <span
-          style={{ textDecoration: todo.completed ? "line-through" : "none", cursor: "pointer" }}
+    <div className="flex flex-col w-2/5 bg-gray-100 p-4 rounded-lg shadow-md space-y-2">
+      <div className="flex justify-between items-center">
+        <h3
           onClick={() => toggleComplete(todo.id)}
+          className={`font-semibold text-lg cursor-pointer ${
+            todo.completed ? "line-through text-gray-400" : "text-gray-800"
+          }`}
         >
-          {todo.text}
-        </span>
+          {todo.title}
+        </h3>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => handleEdit(todo)}
+            className="px-3 py-1 bg-green-400 text-white rounded-lg hover:bg-green-500 transition"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => deleteTodo(todo.id)}
+            className="px-3 py-1 bg-red-400 text-white rounded-lg hover:bg-red-500 transition"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+      <p className={todo.completed ? "line-through text-gray-400" : "text-gray-700"}>
+        {todo.text}
+      </p>
+      {todo.dateTime && (
+        <p className="text-sm text-gray-500">
+          {new Date(todo.dateTime).toLocaleString()}
+        </p>
       )}
-
-      {isEditing ? (
-        <button onClick={handleSave}>Save</button>
-      ) : (
-        <button onClick={() => setIsEditing(true)}>Edit</button>
-      )}
-      <button onClick={() => deleteTodo(todo.id)}>Delete</button>
-    </li>
+    </div>
   );
 }

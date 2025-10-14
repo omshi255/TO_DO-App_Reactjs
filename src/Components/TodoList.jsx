@@ -1,20 +1,24 @@
 import React from "react";
 import TodoItem from "./TodoItem";
+import { useNavigate } from "react-router-dom";
 
-export default function TodoList({ todos, deleteTodo, toggleComplete, updateTodo }) {
-  if (todos.length === 0) return <p>No tasks yet!</p>;
+export default function TodoList({ todos, deleteTodo, toggleComplete, handleEdit }) {
+  const navigate = useNavigate();
+
+  if (todos.length === 0)
+    return <p className="text-center text-gray-500">No todos yet</p>;
 
   return (
-    <ul>
+    <div className="flex flex-col items-center space-y-3">
       {todos.map((todo) => (
         <TodoItem
           key={todo.id}
           todo={todo}
           deleteTodo={deleteTodo}
           toggleComplete={toggleComplete}
-          updateTodo={updateTodo}
+          handleEdit={(todo) => handleEdit(todo, navigate)}
         />
       ))}
-    </ul>
+    </div>
   );
 }

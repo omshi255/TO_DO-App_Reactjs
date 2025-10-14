@@ -1,73 +1,77 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import TodoForm from "./Components/TodoForm";
 import TodoList from "./Components/TodoList";
+import Navbar from "./Components/NavBar";
 
 export default function App() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(() => {
+    const stored = localStorage.getItem("todos");
+    return stored ? JSON.parse(stored) : [];
+  });
 
-  // ----------- Logic Functions -----------
-  const loadTodos = () => {
-    const saved = localStorage.getItem("todos");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (err) {
-        console.error("Failed to parse todos:", err);
-      }
-    }
-    return [];
-  };
+  const [editingTodo, setEditingTodo] = useState(null);
 
-  const saveTodos = (todos) => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  };
-
-  const addTodo = (text) => {
-    if (!text.trim()) return;
-    const newTodo = { id: Date.now(), text, completed: false };
-    const updated = [...todos, newTodo];
-    setTodos(updated);
-    saveTodos(updated);
-  };
-
-  const deleteTodo = (id) => {
-    const updated = todos.filter((todo) => todo.id !== id);
-    setTodos(updated);
-    saveTodos(updated);
-  };
-
-  const toggleComplete = (id) => {
-    const updated = todos.map((todo) =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    );
-    setTodos(updated);
-    saveTodos(updated);
-  };
-
-  const updateTodo = (id, newText) => {
-    if (!newText.trim()) return;
-    const updated = todos.map((todo) =>
-      todo.id === id ? { ...todo, text: newText } : todo
-    );
-    setTodos(updated);
-    saveTodos(updated);
-  };
-
-  // ----------- Load Todos on Mount -----------
   useEffect(() => {
-    setTodos(loadTodos());
-  }, []);
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  const addTodo = (title, text, dateTime) => {
+    if (!title.trim() || !text.trim()) return;
+    const newTodo = { id: Date.now(), title, text, dateTime, completed: false };
+    setTodos([newTodo, ...todos]);
+  };
+
+  const deleteTodo = (id) => setTodos(todos.filter((todo) => todo.id !== id));
+
+  const toggleComplete = (id) =>
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+
+  const updateTodo = (id, title, text, dateTime) =>
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, title, text, dateTime } : todo
+      )
+    );
+
+  const handleEdit = (todo, navigate) => {
+    setEditingTodo({ ...todo, update: updateTodo });
+    navigate("/add"); // navigate to form when editing
+  };
 
   return (
-    <div className="app-container">
-      <h1>Todo App</h1>
-      <TodoForm addTodo={addTodo} />
-      <TodoList
-        todos={todos}
-        deleteTodo={deleteTodo}
-        toggleComplete={toggleComplete}
-        updateTodo={updateTodo}
-      />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <Navbar />
+        <Routes>
+          <Route
+            path="/add"
+            element={
+              <TodoForm
+                addTodo={addTodo}
+                editingTodo={editingTodo}
+                setEditingTodo={setEditingTodo}
+              />
+            }
+          />
+          <Route
+            path="/list"
+            element={
+              <TodoList
+                todos={todos}
+                deleteTodo={deleteTodo}
+                toggleComplete={toggleComplete}
+                handleEdit={handleEdit}
+              />
+            }
+          />
+          <Route path="*" element={<Navigate to="/list" />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
