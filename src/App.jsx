@@ -4,7 +4,7 @@ import TodoForm from "./Components/TodoForm";
 import TodoList from "./Components/TodoList";
 import Navbar from "./Components/NavBar";
 
-export default  App = () => {
+export default function App () {
   const [todos, setTodos] = useState(() => {
     const stored = localStorage.getItem("todos");
     return stored ? JSON.parse(stored) : [];
@@ -13,7 +13,7 @@ export default  App = () => {
   const [editingTodo, setEditingTodo] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
+    localStorage.setItem("todos", JSON.stringify(todos));   //change
   }, [todos]);
 
   const addTodo = (title, text, dateTime) => {

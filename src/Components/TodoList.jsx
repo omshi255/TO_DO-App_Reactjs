@@ -6,7 +6,7 @@ export default function TodoList({ todos, deleteTodo, toggleComplete, handleEdit
   const navigate = useNavigate();
   const handleToggle = (todo) => {
     toggleComplete(todo.id); 
-    toast.success(todo.completed ? "Marked as incomplete" : "Marked as complete");
+   
   };
   if (todos.length === 0)
     return <p className="text-center text-gray-500">No todos yet</p>;
