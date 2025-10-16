@@ -4,7 +4,7 @@ import TodoForm from "./Components/TodoForm";
 import TodoList from "./Components/TodoList";
 import Navbar from "./Components/NavBar";
 
-export default function App() {
+export default  App = () => {
   const [todos, setTodos] = useState(() => {
     const stored = localStorage.getItem("todos");
     return stored ? JSON.parse(stored) : [];

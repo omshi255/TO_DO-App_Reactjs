@@ -1,29 +1,42 @@
-import React, { useState, useEffect } from "react";
 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 export default function TodoForm({ addTodo, editingTodo, setEditingTodo }) {
+
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
-  const [dateTime, setDateTime] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
 
   useEffect(() => {
     if (editingTodo) {
       setTitle(editingTodo.title);
       setText(editingTodo.text);
-      setDateTime(editingTodo.dateTime);
+      if (editingTodo.dateTime) {
+        const dt = new Date(editingTodo.dateTime);
+        setDate(dt.toISOString().split("T")[0]);
+        setTime(dt.toTimeString().split(" ")[0].slice(0, 5));
+      }
     }
   }, [editingTodo]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const dateTime = date && time ? new Date(`${date}T${time}`) : null;
+
     if (editingTodo) {
       editingTodo.update(editingTodo.id, title, text, dateTime);
       setEditingTodo(null);
     } else {
       addTodo(title, text, dateTime);
     }
+
     setTitle("");
     setText("");
-    setDateTime("");
+    setDate("");
+    setTime("");
+     navigate("/todos");
   };
 
   return (
@@ -45,9 +58,15 @@ export default function TodoForm({ addTodo, editingTodo, setEditingTodo }) {
         className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
       />
       <input
-        type="datetime-local"
-        value={dateTime}
-        onChange={(e) => setDateTime(e.target.value)}
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+      />
+      <input
+        type="time"
+        value={time}
+        onChange={(e) => setTime(e.target.value)}
         className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
       />
       <button

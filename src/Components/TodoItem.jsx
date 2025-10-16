@@ -2,7 +2,7 @@ import React from "react";
 
 export default function TodoItem({ todo, deleteTodo, toggleComplete, handleEdit }) {
   return (
-    <div className="flex flex-col w-2/5 bg-gray-100 p-4 rounded-lg shadow-md space-y-2">
+    <div className="flex flex-col w-full bg-gray-100 p-4 rounded-lg shadow-md space-y-2">
       <div className="flex justify-between items-center">
         <h3
           onClick={() => toggleComplete(todo.id)}
@@ -35,6 +35,23 @@ export default function TodoItem({ todo, deleteTodo, toggleComplete, handleEdit 
           {new Date(todo.dateTime).toLocaleString()}
         </p>
       )}
+    
+ <div className="flex items-center space-x-2">
+  <input
+    type="checkbox"
+    checked={todo.completed}
+    onChange={() => toggleComplete(todo.id)}
+    className="w-5 h-5 text-amber-400 border-red-700 rounded-lg focus:ring-amber-300"
+  />
+  <span className={`text-lg ${todo.completed ? "line-through text-gray-400" : ""}`}>
+  
+  </span>
+  <p className="text-sm font-bold font-sans text-red-700">Mark Done</p>
+</div>
+
+<span className={todo.completed ? "line-through text-gray-500" : ""}>
+
+</span>
     </div>
   );
 }
