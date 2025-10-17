@@ -1,15 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import TodoItem from "./TodoItem";
-import { useNavigate } from "react-router-dom";
+import { TodoContext } from "../context/Todocontext";
 
-export default function TodoList({ todos, deleteTodo, toggleComplete, handleEdit }) {
-  const navigate = useNavigate();
-  const handleToggle = (todo) => {
-    toggleComplete(todo.id); 
-   
-  };
+export default function TodoList() {
+  const { todos, deleteTodo, toggleComplete, setEditingTodo } = useContext(TodoContext);
+
   if (todos.length === 0)
-    return <p className="text-center text-gray-500">No todos yet</p>;
+    return <p className="text-center text-gray-500 mt-10">No todos yet</p>;
 
   return (
     <div className="flex flex-col items-center space-y-3">
@@ -18,12 +15,10 @@ export default function TodoList({ todos, deleteTodo, toggleComplete, handleEdit
           key={todo.id}
           todo={todo}
           deleteTodo={deleteTodo}
-          toggleComplete={() => handleToggle(todo)} 
-          handleEdit={(todo) => handleEdit(todo, navigate)}
+          toggleComplete={toggleComplete}
+          handleEdit={setEditingTodo}
         />
       ))}
-
-      
     </div>
   );
 }

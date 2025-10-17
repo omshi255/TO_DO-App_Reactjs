@@ -1,13 +1,14 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { TodoContext } from "../context/Todocontext";
 import { useNavigate } from "react-router-dom";
-export default function TodoForm({ addTodo, editingTodo, setEditingTodo }) {
 
-  const navigate = useNavigate();
+export default function TodoForm() {
+  const { addTodo, updateTodo, editingTodo, setEditingTodo } = useContext(TodoContext);
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (editingTodo) {
@@ -23,10 +24,11 @@ export default function TodoForm({ addTodo, editingTodo, setEditingTodo }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const dateTime = date && time ? new Date(`${date}T${time}`) : null;
 
     if (editingTodo) {
-      editingTodo.update(editingTodo.id, title, text, dateTime);
+      updateTodo(editingTodo.id, title, text, dateTime);
       setEditingTodo(null);
     } else {
       addTodo(title, text, dateTime);
@@ -36,7 +38,7 @@ export default function TodoForm({ addTodo, editingTodo, setEditingTodo }) {
     setText("");
     setDate("");
     setTime("");
-     navigate("/todos");
+    navigate("/list");
   };
 
   return (
@@ -50,12 +52,14 @@ export default function TodoForm({ addTodo, editingTodo, setEditingTodo }) {
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Title"
         className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+        required
       />
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Description"
         className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+        required
       />
       <input
         type="date"
