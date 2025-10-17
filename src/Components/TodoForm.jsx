@@ -1,99 +1,133 @@
-import React, { useContext, useState, useEffect } from "react";
-import { TodoContext } from "../context/Todocontext";
+
+import React, { useContext, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { TodoContext } from "../context/Todocontext";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 export default function TodoForm() {
   const { addTodo, updateTodo, editingTodo, setEditingTodo, todos } = useContext(TodoContext);
-  const [title, setTitle] = useState("");
-  const [text, setText] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
   const navigate = useNavigate();
   const { id } = useParams();
 
-useEffect(() => {
-  let todoToEdit = editingTodo;
+  const initialValues = {
+    title: "",
+    text: "",
+    date: "",
+    time: "",
+  };
 
-  if (!todoToEdit && id) {
-    todoToEdit = todos.find(t => String(t.id) === String(id));
-    setEditingTodo(todoToEdit || null);
-  }
+  useEffect(() => {
+    let todoToEdit = editingTodo;
 
-  if (todoToEdit) {
-    setTitle(todoToEdit.title);
-    setText(todoToEdit.text);
-    if (todoToEdit.dateTime) {
-      const dt = new Date(todoToEdit.dateTime);
-      setDate(dt.toISOString().split("T")[0]);
-      setTime(dt.toTimeString().split(" ")[0].slice(0, 5));
+    if (!todoToEdit && id) {
+      todoToEdit = todos.find((t) => String(t.id) === String(id));
+      setEditingTodo(todoToEdit || null);
     }
-  } else {
-    setTitle("");
-    setText("");
-    setDate("");
-    setTime("");
-  }
-}, [editingTodo, id, todos, setEditingTodo]);
+  }, [editingTodo, id, todos, setEditingTodo]);
 
-const handleSubmit = (e) => {
-  e.preventDefault();
+  const validationSchema = Yup.object({
+    title: Yup.string()
+      .min(3, "Title must be at least 3 characters")
+      .required("Title is required"),
+    text: Yup.string()
+      .min(5, "Description must be at least 5 characters")
+      .required("Description is required"),
+    date: Yup.date().nullable(),
+    time: Yup.string().nullable(),
+  });
 
-  const dateTime = date && time ? new Date(`${date}T${time}`) : null;
+  const handleSubmit = (values, { resetForm }) => {
+    const { title, text, date, time } = values;
+    const dateTime = date && time ? new Date(`${date}T${time}`) : null;
 
-  if (editingTodo) {
-    updateTodo(editingTodo.id, title, text, dateTime);
-    setEditingTodo(null);
-  } else {
-    addTodo(title, text, dateTime);
-  }
+    if (editingTodo) {
+      updateTodo(editingTodo.id, title, text, dateTime);
+      setEditingTodo(null);
+    } else {
+      addTodo(title, text, dateTime);
+    }
 
-  setTitle("");
-  setText("");
-  setDate("");
-  setTime("");
-
-  navigate("/list"); 
-};
-
+    resetForm();
+    navigate("/list");
+  };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col items-center mb-6 space-y-3"
-    >
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
-        className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
-        required
-      />
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Description"
-        className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
-        required
-      />
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
-      />
-      <input
-        type="time"
-        value={time}
-        onChange={(e) => setTime(e.target.value)}
-        className="w-2/5 p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
-      />
-      <button
-        type="submit"
-        className="px-6 py-3 bg-amber-400 text-white font-semibold rounded-lg hover:bg-amber-500 transition"
+    <div className="flex flex-col items-center mb-6 space-y-3">
+      <Formik
+        enableReinitialize
+        initialValues={
+          editingTodo
+            ? {
+                title: editingTodo.title,
+                text: editingTodo.text,
+                date: editingTodo.dateTime
+                  ? new Date(editingTodo.dateTime).toISOString().split("T")[0]
+                  : "",
+                time: editingTodo.dateTime
+                  ? new Date(editingTodo.dateTime).toTimeString().slice(0, 5)
+                  : "",
+              }
+            : initialValues
+        }
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
       >
-        {editingTodo ? "Update Todo" : "Add Todo"}
-      </button>
-    </form>
+        {() => (
+          <Form className="flex flex-col items-center space-y-3 w-full">
+            <div className="w-2/5 flex flex-col">
+              <Field
+                type="text"
+                name="title"
+                placeholder="Title"
+                className="p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+              />
+              <ErrorMessage
+                name="title"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            <div className="w-2/5 flex flex-col">
+              <Field
+                as="textarea"
+                name="text"
+                placeholder="Description"
+                className="p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+              />
+              <ErrorMessage
+                name="text"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
+
+            <div className="w-2/5 flex flex-col">
+              <Field
+                type="date"
+                name="date"
+                className="p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+              />
+            </div>
+
+            <div className="w-2/5 flex flex-col">
+              <Field
+                type="time"
+                name="time"
+                className="p-3 rounded-lg border-2 border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="px-6 py-3 bg-amber-400 text-white font-semibold rounded-lg hover:bg-amber-500 transition"
+            >
+              {editingTodo ? "Update Todo" : "Add Todo"}
+            </button>
+          </Form>
+        )}
+      </Formik>
+    </div>
   );
 }
