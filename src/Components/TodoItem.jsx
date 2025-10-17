@@ -1,9 +1,6 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function TodoItem({ todo, deleteTodo, toggleComplete, handleEdit }) {
-  const navigate = useNavigate();
-
   return (
     <div className="flex flex-col w-3/4 bg-gray-100 p-4 rounded-lg shadow-md space-y-2">
       <div className="flex justify-between items-center">
@@ -17,10 +14,7 @@ export default function TodoItem({ todo, deleteTodo, toggleComplete, handleEdit 
         </h3>
         <div className="flex space-x-2">
           <button
-            onClick={() => {
-              handleEdit(todo);
-              navigate("/add");
-            }}
+            onClick={handleEdit} 
             className="px-3 py-1 bg-green-400 text-white rounded-lg hover:bg-green-500 transition"
           >
             Edit

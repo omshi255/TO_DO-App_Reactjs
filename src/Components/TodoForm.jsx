@@ -1,45 +1,60 @@
 import React, { useContext, useState, useEffect } from "react";
 import { TodoContext } from "../context/Todocontext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function TodoForm() {
-  const { addTodo, updateTodo, editingTodo, setEditingTodo } = useContext(TodoContext);
+  const { addTodo, updateTodo, editingTodo, setEditingTodo, todos } = useContext(TodoContext);
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const navigate = useNavigate();
+  const { id } = useParams();
 
-  useEffect(() => {
-    if (editingTodo) {
-      setTitle(editingTodo.title);
-      setText(editingTodo.text);
-      if (editingTodo.dateTime) {
-        const dt = new Date(editingTodo.dateTime);
-        setDate(dt.toISOString().split("T")[0]);
-        setTime(dt.toTimeString().split(" ")[0].slice(0, 5));
-      }
+useEffect(() => {
+  let todoToEdit = editingTodo;
+
+  if (!todoToEdit && id) {
+    todoToEdit = todos.find(t => String(t.id) === String(id));
+    setEditingTodo(todoToEdit || null);
+  }
+
+  if (todoToEdit) {
+    setTitle(todoToEdit.title);
+    setText(todoToEdit.text);
+    if (todoToEdit.dateTime) {
+      const dt = new Date(todoToEdit.dateTime);
+      setDate(dt.toISOString().split("T")[0]);
+      setTime(dt.toTimeString().split(" ")[0].slice(0, 5));
     }
-  }, [editingTodo]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const dateTime = date && time ? new Date(`${date}T${time}`) : null;
-
-    if (editingTodo) {
-      updateTodo(editingTodo.id, title, text, dateTime);
-      setEditingTodo(null);
-    } else {
-      addTodo(title, text, dateTime);
-    }
-
+  } else {
     setTitle("");
     setText("");
     setDate("");
     setTime("");
-    navigate("/list");
-  };
+  }
+}, [editingTodo, id, todos, setEditingTodo]);
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  const dateTime = date && time ? new Date(`${date}T${time}`) : null;
+
+  if (editingTodo) {
+    updateTodo(editingTodo.id, title, text, dateTime);
+    setEditingTodo(null);
+  } else {
+    addTodo(title, text, dateTime);
+  }
+
+  setTitle("");
+  setText("");
+  setDate("");
+  setTime("");
+
+  navigate("/list"); 
+};
+
 
   return (
     <form

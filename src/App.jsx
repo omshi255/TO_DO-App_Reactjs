@@ -14,6 +14,7 @@ export default function App() {
           <Routes>
             <Route path="/add" element={<TodoForm />} />
             <Route path="/list" element={<TodoList />} />
+             <Route path="/edit/:id" element={<TodoForm />} />
             <Route path="*" element={<TodoList />} />
           </Routes>
         </div>
